@@ -76,6 +76,38 @@ docker-compose down -v
 
 Para más información sobre **Symfony**, **Angular** o **PostgreSQL**, consulta sus respectivas documentaciones oficiales.
 
+## Cómo hacer tuyo este repositorio y publicarlo en GitLab, para preparar la base de tu TFG
+Si quieres reutilizar este proyecto en tu propia cuenta, sigue estos pasos desde tu copia local:
+
+1. **Revisar y eliminar el remoto original**
+   ```bash
+   git remote -v
+   git remote remove origin
+   ```
+   El objetivo es dejar tu repositorio local sin la referencia al remoto original.
+
+2. **Preparar un proyecto vacío en GitLab**
+   - Inicia sesión en tu cuenta de GitLab.
+   - Crea un proyecto nuevo sin inicializar (sin README, sin `.gitignore`).
+   - Copia la URL del repositorio recién creado; puedes usar tanto HTTPS como SSH.
+
+3. **Añadir tu nuevo remoto**
+   ```bash
+   git remote add origin git@gitlab.com:TU_USUARIO/TU_PROYECTO.git
+   git remote -v
+   ```
+   Sustituye `git@gitlab.com:TU_USUARIO/TU_PROYECTO.git` por la URL que te proporcione GitLab.
+
+4. **Publicar el código en GitLab**
+   ```bash
+   git push -u origin main
+   ```
+   Esto sube todo el historial local y deja configurado `origin` como remoto por defecto.
+
+5. **Verificar que todo quedó listo**
+   - Abre tu proyecto en GitLab y confirma que ves los archivos.
+   - Si necesitas ramas adicionales, súbelas con `git push origin NOMBRE_RAMA`.
+
 ## Comandos útiles
 
 - Para acceder al contenedor del Frontend Angular:
