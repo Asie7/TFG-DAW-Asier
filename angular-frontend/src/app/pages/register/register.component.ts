@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -45,7 +46,10 @@ export class RegisterComponent {
   errorMessage = '';
   isLoading = false;
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   // Validar nombre en tiempo real
   validarNombre() {
@@ -186,13 +190,64 @@ export class RegisterComponent {
     this.errorMessage = '';
     this.isLoading = true;
 
-    console.log('Usuario a registrar:', this.usuario);
-    
-    // Simulamos una llamada al backend
-    setTimeout(() => {
-      this.isLoading = false;
-      alert('¡Registro exitoso! (por ahora es simulado)');
-    }, 1500);
+    // Preparar datos para enviar al backend
+    const userData = {
+      nombre: this.usuario.nombre,
+      email: this.usuario.email,
+      password: this.usuario.password
+    };
+
+    console.log('Enviando datos al backend:', userData);
+
+    // Llamar al backend real
+    this.authService.register(userData).subscribe({
+      next: (response) => {
+        console.log('Respuesta del servidor:', response);
+        this.isLoading = false;
+        alert('¡Registro exitoso! Usuario creado: ' + response.user.nombre);
+        
+        // Limpiar el formulario
+        this.usuario = {
+          nombre: '',
+          email: '',
+          password: '',
+          confirmPassword: ''
+        };
+        this.resetearValidaciones();
+        
+        // Redirigir al login cuando lo crees
+        // this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Error al registrar:', error);
+        this.isLoading = false;
+        
+        // Mostrar mensaje de error del servidor
+        if (error.error && error.error.error) {
+          this.errorMessage = error.error.error;
+        } else {
+          this.errorMessage = 'Error al conectar con el servidor. Intenta de nuevo.';
+        }
+      }
+    });
+  }
+
+  // Método auxiliar para resetear validaciones
+  resetearValidaciones() {
+    this.errores = {
+      nombre: '',
+      email: '',
+      password: '',
+      confirmPassword: ''
+    };
+    this.camposValidos = {
+      nombre: false,
+      email: false,
+      password: false,
+      confirmPassword: false
+    };
+    this.errorMessage = '';
+    this.fortalezaPassword = 0;
   }
 
   // Obtener texto de fortaleza
