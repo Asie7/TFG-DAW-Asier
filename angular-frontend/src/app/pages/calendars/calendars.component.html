@@ -1,0 +1,258 @@
+<!-- Navbar -->
+<nav class="bg-gradient-to-r from-red-600 to-red-800 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="logo flex items-center gap-3">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 2v4"/>
+        <path d="M16 2v4"/>
+        <rect width="18" height="18" x="3" y="4" rx="2"/>
+        <path d="M3 10h18"/>
+        <path d="m9 16 2 2 4-4"/>
+      </svg>
+      <h1 class="text-white text-2xl font-bold">WePlan</h1>
+    </div>
+    
+    <!-- Usuario, volver al inicio y cerrar sesión -->
+    <div class="flex items-center gap-4">
+      <span class="text-white font-medium">Hola, {{ usuario?.nombre }}</span>
+      
+      <!-- Botón volver al inicio -->
+      <a href="/" class="flex items-center gap-2 px-6 py-2 bg-white text-red-600 rounded-lg font-medium hover:-translate-y-1 transition duration-300">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l9.5-9 9.5 9M4.5 9.75V21h6.75v-6h2.25v6H19.5V9.75" />
+  </svg>
+      Volver al inicio
+    </a>
+      
+      <!-- Botón cerrar sesión -->
+      <button 
+        (click)="cerrarSesion()"
+        class="px-4 py-2 bg-white text-red-600 rounded-lg font-medium hover:-translate-y-1 transition duration-300">
+        Cerrar sesión
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Contenedor principal -->
+<div class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-gray-800">Mis Calendarios</h2>
+        <p class="text-gray-600 mt-1">Gestiona y organiza tus calendarios</p>
+      </div>
+
+      <button 
+        (click)="abrirModalCrear()"
+        class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-lg font-medium hover:shadow-lg transition duration-300">
+
+        <!-- ICONO LUCIDE: plus -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" 
+             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path d="M12 5v14"></path>
+          <path d="M5 12h14"></path>
+        </svg>
+
+        Nuevo Calendario
+      </button>
+    </div>
+
+    <!-- Loader -->
+    <div *ngIf="isLoading" class="text-center py-16">
+      <!-- ICONO LUCIDE: loader-circle -->
+      <svg class="animate-spin h-12 w-12 mx-auto text-red-600" 
+           xmlns="http://www.w3.org/2000/svg" fill="none" 
+           viewBox="0 0 24 24" stroke-width="2">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" opacity="0.25" />
+        <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" opacity="0.75" />
+      </svg>
+      <p class="text-gray-600 mt-4">Cargando calendarios...</p>
+    </div>
+
+    <!-- Grid de calendarios -->
+    <div *ngIf="!isLoading && calendarios.length > 0" 
+         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <div 
+        *ngFor="let calendario of calendarios"
+        class="bg-white rounded-xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden relative group">
+
+        <!-- Barra -->
+        <div [class]="calendario.colorClase + ' h-2 w-full'"></div>
+
+        <div (click)="abrirCalendario(calendario.id)" class="p-6 cursor-pointer">
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-gray-800 mb-1">{{ calendario.nombre }}</h3>
+              <p class="text-gray-600 text-sm">{{ calendario.descripcion || 'Sin descripción' }}</p>
+
+              <!-- Badge -->
+              <span 
+                [class]="'inline-block mt-2 px-3 py-1 text-xs font-medium rounded-full ' + 
+                (calendario.tipo === 'personal' 
+                  ? 'bg-blue-100 text-blue-800' 
+                  : 'bg-green-100 text-green-800')">
+                {{ calendario.tipo === 'personal' ? '👤 Personal' : '👥 Grupal' }}
+              </span>
+            </div>
+
+            <!-- ICONO LUCIDE: calendar -->
+            <svg class="w-8 h-8 text-gray-400" xmlns="http://www.w3.org/2000/svg"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path d="M8 2v4"></path>
+              <path d="M16 2v4"></path>
+              <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+              <path d="M3 10h18"></path>
+            </svg>
+          </div>
+
+          <!-- Última edición -->
+          <div class="flex items-center gap-2 text-sm text-gray-500 mt-4">
+
+            <!-- ICONO LUCIDE: clock -->
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg"
+                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 6v6l3 3"></path>
+            </svg>
+
+            Última edición: {{ calendario.updatedAt | date:'dd/MM/yyyy' }}
+          </div>
+        </div>
+
+        <!-- Botón eliminar -->
+        <button 
+          (click)="eliminarCalendario(calendario.id, calendario.nombre, $event)"
+          class="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-600">
+
+          <!-- ICONO LUCIDE: trash-2 -->
+          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" 
+               fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+          </svg>
+
+        </button>
+      </div>
+
+    </div>
+
+    <!-- No calendarios -->
+    <div *ngIf="!isLoading && calendarios.length === 0" class="text-center py-16">
+
+      <!-- ICONO LUCIDE: calendar -->
+      <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" 
+           xmlns="http://www.w3.org/2000/svg" fill="none"
+           viewBox="0 0 24 24" stroke="currentColor">
+        <path d="M8 2v4"></path>
+        <path d="M16 2v4"></path>
+        <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+        <path d="M3 10h18"></path>
+      </svg>
+
+      <h3 class="text-xl font-semibold text-gray-600 mb-2">No tienes calendarios aún</h3>
+      <p class="text-gray-500 mb-6">Crea tu primer calendario para empezar a organizar</p>
+
+      <button 
+        (click)="abrirModalCrear()"
+        class="px-6 py-3 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-lg font-medium hover:shadow-lg transition duration-300">
+        Crear Primer Calendario
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal crear -->
+<div *ngIf="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+
+    <!-- Cerrar modal -->
+    <button 
+      (click)="cerrarModal()"
+      class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+
+      <!-- ICONO LUCIDE: x -->
+      <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg"
+           fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+
+    </button>
+
+    <h3 class="text-2xl font-bold text-gray-800 mb-6">Crear Nuevo Calendario</h3>
+
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Nombre *</label>
+        <input 
+          type="text" 
+          [(ngModel)]="nuevoCalendario.nombre"
+          placeholder="Ej: Trabajo, Personal, Familia"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+          required>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
+        <textarea 
+          [(ngModel)]="nuevoCalendario.descripcion"
+          rows="3"
+          placeholder="Breve descripción del calendario"
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+        <div class="flex gap-4">
+          <label class="flex items-center cursor-pointer">
+            <input type="radio" class="mr-2" value="personal" [(ngModel)]="nuevoCalendario.tipo">
+            👤 Personal
+          </label>
+
+          <label class="flex items-center cursor-pointer">
+            <input type="radio" class="mr-2" value="grupal" [(ngModel)]="nuevoCalendario.tipo">
+            👥 Grupal
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Color</label>
+        <div class="grid grid-cols-6 gap-2">
+          <div 
+            *ngFor="let color of coloresDisponibles"
+            (click)="nuevoCalendario.color = color.valor"
+            [class]="'w-10 h-10 rounded-lg cursor-pointer transition-transform hover:scale-110 ' 
+                + color.clase 
+                + (nuevoCalendario.color === color.valor ? ' ring-4 ring-offset-2 ring-gray-400' : '')"
+            [title]="color.nombre">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3 mt-6">
+      <button 
+        (click)="cerrarModal()"
+        class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition duration-200">
+        Cancelar
+      </button>
+
+      <button 
+        (click)="crearCalendario()"
+        [disabled]="isLoading || !nuevoCalendario.nombre.trim()"
+        class="flex-1 px-4 py-2 bg-gradient-to-r from-red-600 to-red-800 text-white rounded-lg font-medium hover:shadow-lg transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+        {{ isLoading ? 'Creando...' : 'Crear' }}
+      </button>
+    </div>
+
+  </div>
+</div>
