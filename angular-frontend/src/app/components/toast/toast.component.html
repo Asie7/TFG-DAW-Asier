@@ -1,0 +1,24 @@
+<!-- Contenedor de toasts (esquina superior derecha) -->
+<div class="fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-sm w-full">
+  <div 
+    *ngFor="let toast of toasts"
+    [class]="getToastClass(toast.type)">
+    
+    <!-- Icono -->
+    <svg class="w-6 h-6 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="getIcon(toast.type)" />
+    </svg>
+    
+    <!-- Mensaje -->
+    <p class="flex-1 font-medium">{{ toast.message }}</p>
+    
+    <!-- Botón cerrar -->
+    <button 
+      (click)="removeToast(toast.id)"
+      class="flex-shrink-0 hover:bg-white/20 rounded p-1 transition-colors">
+      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+</div>
