@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { CalendarService } from '../../services/calendar.service';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../services/toast.service';
+import { UserAvatarComponent } from '../../components/user-avatar/user.avatar.component';
 
 @Component({
   selector: 'app-calendars',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, UserAvatarComponent],
   templateUrl: './calendars.component.html',
   styles: []
 })
