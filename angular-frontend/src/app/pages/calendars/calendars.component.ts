@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CalendarService } from '../../services/calendar.service';
 import { FormsModule } from '@angular/forms';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-calendars',
@@ -42,7 +43,8 @@ export class CalendarsComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private calendarService: CalendarService
+    private calendarService: CalendarService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -74,7 +76,7 @@ export class CalendarsComponent implements OnInit {
       error: (error) => {
         console.error('Error al cargar calendarios:', error);
         this.isLoading = false;
-        alert('Error al cargar los calendarios');
+        this.toastService.error('Error al cargar los calendarios');
       }
     });
   }
@@ -112,7 +114,7 @@ export class CalendarsComponent implements OnInit {
   // Crear nuevo calendario
   crearCalendario() {
     if (!this.nuevoCalendario.nombre.trim()) {
-      alert('El nombre del calendario es obligatorio');
+      this.toastService.warning('El nombre del calendario es obligatorio');
       return;
     }
 
@@ -129,15 +131,16 @@ export class CalendarsComponent implements OnInit {
         this.isLoading = false;
         this.cerrarModal();
         
+        // Toast de éxito
+        this.toastService.success('Calendario "' + response.calendar.nombre + '" creado exitosamente');
+        
         // Recargar lista de calendarios
         this.cargarCalendarios();
-        
-        alert('¡Calendario creado exitosamente!');
       },
       error: (error) => {
         console.error('Error al crear calendario:', error);
         this.isLoading = false;
-        alert('Error al crear el calendario');
+        this.toastService.error('Error al crear el calendario');
       }
     });
   }
@@ -156,11 +159,12 @@ export class CalendarsComponent implements OnInit {
         // Eliminar de la lista local
         this.calendarios = this.calendarios.filter(cal => cal.id !== id);
         
-        alert('Calendario eliminado exitosamente');
+        // Toast de éxito
+        this.toastService.success('Calendario "' + nombre + '" eliminado correctamente');
       },
       error: (error) => {
         console.error('Error al eliminar calendario:', error);
-        alert('Error al eliminar el calendario');
+        this.toastService.error('Error al eliminar el calendario');
       }
     });
   }
@@ -170,13 +174,16 @@ export class CalendarsComponent implements OnInit {
     console.log('Abriendo calendario:', id);
     // Redirigir a la vista del calendario específico (lo haremos después)
     // this.router.navigate(['/calendar', id]);
-    alert(`Próximamente: Vista del calendario ${id}`);
+    this.toastService.info('Próximamente: Vista del calendario');
   }
 
   // Cerrar sesión
   cerrarSesion() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    this.router.navigate(['/']);
+    
+    setTimeout(() => {
+      this.router.navigate(['/']);
+    }, 1000);
   }
 }

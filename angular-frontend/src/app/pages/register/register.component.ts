@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-register',
@@ -48,7 +49,8 @@ export class RegisterComponent {
 
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
   ) {}
 
   // Validar nombre en tiempo real
@@ -183,6 +185,7 @@ export class RegisterComponent {
 
     if (!todosValidos) {
       this.errorMessage = 'Por favor, corrige los errores antes de continuar';
+      this.toastService.error(this.errorMessage);
       return;
     }
 
@@ -204,7 +207,9 @@ export class RegisterComponent {
       next: (response) => {
         console.log('Respuesta del servidor:', response);
         this.isLoading = false;
-        alert('¡Registro exitoso! Usuario creado: ' + response.user.nombre);
+        
+        // Toast de éxito
+        this.toastService.success('¡Bienvenido ' + response.user.nombre + '! Cuenta creada exitosamente');
         
         // Limpiar el formulario
         this.usuario = {
@@ -215,8 +220,6 @@ export class RegisterComponent {
         };
         this.resetearValidaciones();
         
-        // Redirigir al login cuando lo crees
-        // this.router.navigate(['/login']);
       },
       error: (error) => {
         console.error('Error al registrar:', error);
@@ -225,8 +228,10 @@ export class RegisterComponent {
         // Mostrar mensaje de error del servidor
         if (error.error && error.error.error) {
           this.errorMessage = error.error.error;
+          this.toastService.error(this.errorMessage);
         } else {
           this.errorMessage = 'Error al conectar con el servidor. Intenta de nuevo.';
+          this.toastService.error(this.errorMessage);
         }
       }
     });
