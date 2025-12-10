@@ -19,4 +19,9 @@ export class AuthService {
   login(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials);
   }
+
+  // Método para actualizar avatar
+updateAvatar(userId: number, avatar: string): Observable<any> {
+  return this.http.put(`${this.apiUrl}/users/${userId}/avatar`, { avatar });
+}
 }
