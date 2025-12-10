@@ -17,7 +17,7 @@ export class CalendarsComponent implements OnInit {
   // Usuario logueado
   usuario: any = null;
 
-  // Lista de calendarios (ahora viene del backend)
+  // Lista de calendarios 
   calendarios: any[] = [];
 
   // Estados de carga
@@ -171,11 +171,8 @@ export class CalendarsComponent implements OnInit {
   }
 
   // Abrir un calendario específico
-  abrirCalendario(id: number) {
-    console.log('Abriendo calendario:', id);
-    // Redirigir a la vista del calendario específico (lo haremos después)
-    // this.router.navigate(['/calendar', id]);
-    this.toastService.info('Próximamente: Vista del calendario');
+  abrirCalendario(calendarioId: number): void {
+    this.router.navigate(['/calendars', calendarioId]);
   }
 
   // Cerrar sesión
