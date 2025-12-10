@@ -44,7 +44,8 @@ class LoginController extends AbstractController
                 'id' => $user->getId(),
                 'nombre' => $user->getNombre(),
                 'email' => $user->getEmail(),
-                'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s')
+                'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
+                'avatar' => $user->getAvatar()
             ]
         ]);
     }

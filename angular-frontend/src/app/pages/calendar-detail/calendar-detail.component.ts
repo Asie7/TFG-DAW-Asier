@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CalendarService } from '../../services/calendar.service';
 import { EventService, Event } from '../../services/event.service';
 import { ToastService } from '../../services/toast.service';
+import { UserAvatarComponent } from '../../components/user-avatar/user.avatar.component';
 
 interface CalendarDay {
   date: Date;
@@ -17,7 +18,7 @@ interface CalendarDay {
 @Component({
   selector: 'app-calendar-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, UserAvatarComponent],
   templateUrl: './calendar-detail.component.html'
 })
 export class CalendarDetailComponent implements OnInit {
