@@ -28,8 +28,6 @@ class CalendarController extends AbstractController
             return $response;
         }
 
-        // TODO: Obtener userId del token JWT
-        // Por ahora usamos el ID del usuario de prueba
         $userId = $request->query->get('userId', 1);
 
         $user = $entityManager->getRepository(User::class)->find($userId);
@@ -54,6 +52,48 @@ class CalendarController extends AbstractController
         }, $calendars);
 
         $response->setData($calendaresArray);
+        return $response;
+    }
+
+    // Obtener un calendario específico por ID
+   #[Route('/api/calendars/{id}', name: 'api_calendar_get', methods: ['GET', 'OPTIONS'])]
+public function getCalendar(
+    int $id,
+    Request $request,
+    EntityManagerInterface $entityManager
+): JsonResponse {
+    $response = new JsonResponse();
+    $response->headers->set('Access-Control-Allow-Origin', '*');
+    $response->headers->set('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+    if ($request->getMethod() === 'OPTIONS') {
+        $response->setStatusCode(204);
+        return $response;
+    }
+
+    $calendar = $entityManager->getRepository(Calendar::class)->find($id);
+
+    if (!$calendar) {
+        $response->setData(['error' => 'Calendario no encontrado']);
+        $response->setStatusCode(404);
+        return $response;
+    }
+
+    $response->setData([
+        'id' => $calendar->getId(),
+        'nombre' => $calendar->getNombre(),
+        'descripcion' => $calendar->getDescripcion(),
+        'tipo' => $calendar->getTipo(),
+        'color' => $calendar->getColor(),
+        'createdAt' => $calendar->getCreatedAt()->format('Y-m-d H:i:s'),
+        'updatedAt' => $calendar->getUpdatedAt()->format('Y-m-d H:i:s'),
+        'propietario' => [
+            'id' => $calendar->getPropietario()->getId(),
+            'nombre' => $calendar->getPropietario()->getNombre()
+        ]
+    ]);
+
         return $response;
     }
 
