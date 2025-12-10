@@ -1,0 +1,122 @@
+<!-- Navbar -->
+<nav class="bg-gradient-to-r from-red-600 to-red-800 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div class="logo flex items-center gap-3">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 2v4"/>
+        <path d="M16 2v4"/>
+        <rect width="18" height="18" x="3" y="4" rx="2"/>
+        <path d="M3 10h18"/>
+        <path d="m9 16 2 2 4-4"/>
+      </svg>
+      <h1 class="text-white text-3xl font-bold cursor-pointer" (click)="goBack()">WePlan</h1>
+    </div>
+    
+    <button (click)="goBack()" class="px-6 py-2 bg-white text-red-600 rounded-lg font-medium hover:shadow-xl transition duration-300">
+      ← Volver al inicio
+    </button>
+  </div>
+</nav>
+
+<!-- Contenido -->
+<div class="min-h-screen bg-gray-50 py-12 px-4">
+  <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8 md:p-12">
+    
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl font-bold text-gray-900 mb-4">Política de Privacidad</h1>
+      <p class="text-gray-600">Última actualización: Diciembre 2025</p>
+    </div>
+
+    <!-- Contenido -->
+    <div class="prose prose-lg max-w-none space-y-8">
+      
+      <!-- Introducción -->
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">1. Introducción</h2>
+        <p class="text-gray-700 leading-relaxed">
+          En WePlan, nos tomamos muy en serio la privacidad de nuestros usuarios. Esta Política de Privacidad describe cómo recopilamos, usamos, almacenamos y protegemos tu información personal cuando utilizas nuestra plataforma de gestión de calendarios compartidos.
+        </p>
+        <p class="text-gray-700 leading-relaxed mt-4">
+          Al utilizar WePlan, aceptas las prácticas descritas en esta política. Si no estás de acuerdo con algún punto, te recomendamos no utilizar nuestros servicios.
+        </p>
+      </section>
+
+      <!-- Información que recopilamos -->
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">2. Información que Recopilamos</h2>
+        
+        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">2.1. Información que nos proporcionas</h3>
+        <ul class="list-disc pl-6 text-gray-700 space-y-2">
+          <li><strong>Datos de registro:</strong> Nombre, correo electrónico y contraseña cuando creas una cuenta</li>
+          <li><strong>Información de perfil:</strong> Foto de perfil (opcional)</li>
+          <li><strong>Contenido del usuario:</strong> Calendarios, eventos, descripciones y cualquier información que añadas a la plataforma</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-gray-800 mb-3 mt-6">2.2. Información recopilada automáticamente</h3>
+        <ul class="list-disc pl-6 text-gray-700 space-y-2">
+          <li><strong>Cookies:</strong> Utilizamos cookies para mejorar tu experiencia y recordar tus preferencias</li>
+          <li><strong>Datos de uso:</strong> Información sobre cómo interactúas con la plataforma</li>
+          <li><strong>Información técnica:</strong> Dirección IP, tipo de navegador, sistema operativo</li>
+        </ul>
+      </section>
+
+      <!-- Cómo usamos tu información -->
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">3. Cómo Usamos tu Información</h2>
+        <p class="text-gray-700 leading-relaxed mb-4">Utilizamos la información recopilada para:</p>
+        <ul class="list-disc pl-6 text-gray-700 space-y-2">
+          <li>Proporcionar, mantener y mejorar nuestros servicios</li>
+          <li>Crear y gestionar tu cuenta de usuario</li>
+          <li>Facilitar la creación y gestión de calendarios compartidos</li>
+          <li>Enviar notificaciones sobre eventos y actualizaciones importantes</li>
+          <li>Personalizar tu experiencia en la plataforma</li>
+          <li>Detectar y prevenir fraudes o usos indebidos</li>
+          <li>Cumplir con obligaciones legales</li>
+        </ul>
+      </section>
+
+      <!-- Compartir información -->
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">4. Compartir tu Información</h2>
+        <p class="text-gray-700 leading-relaxed mb-4">
+          En WePlan respetamos tu privacidad. No vendemos ni alquilamos tu información personal a terceros.
+        </p>
+        <p class="text-gray-700 leading-relaxed mb-4">Podemos compartir tu información solo en los siguientes casos:</p>
+        <ul class="list-disc pl-6 text-gray-700 space-y-2">
+          <li><strong>Con otros usuarios:</strong> Cuando compartes un calendario, los miembros invitados pueden ver tu nombre y los eventos que crees</li>
+          <li><strong>Con tu consentimiento:</strong> Cuando nos autorizas expresamente</li>
+          <li><strong>Por obligación legal:</strong> Si la ley nos lo requiere</li>
+          <li><strong>Para proteger derechos:</strong> Para proteger los derechos, propiedad o seguridad de WePlan y sus usuarios</li>
+        </ul>
+      </section>
+
+      <!-- Cambios en la política -->
+      <section>
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">5. Cambios en esta Política</h2>
+        <p class="text-gray-700 leading-relaxed">
+          Podemos actualizar esta Política de Privacidad ocasionalmente para reflejar cambios en nuestras prácticas o por motivos legales. Te notificaremos sobre cambios significativos mediante un aviso destacado en nuestra plataforma o por correo electrónico. 
+        </p>
+      </section>
+
+    </div>
+
+    <!-- Footer de la página -->
+    <div class="mt-12 pt-8 border-t border-gray-200 text-center">
+      <button 
+        (click)="goBack()"
+        class="px-8 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition duration-300">
+        Volver al inicio
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white text-center py-8 mt-12">
+  <p class="text-lg">&copy; 2025 WePlan</p>
+  <div class="mt-4 space-x-6">
+    <a href="/policy-privacy" class="text-gray-400 hover:text-white transition duration-200">Política de Privacidad</a>
+  </div>
+</footer>
