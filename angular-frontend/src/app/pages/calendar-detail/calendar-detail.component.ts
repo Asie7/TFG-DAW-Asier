@@ -6,6 +6,7 @@ import { CalendarService } from '../../services/calendar.service';
 import { EventService, Event } from '../../services/event.service';
 import { ToastService } from '../../services/toast.service';
 import { UserAvatarComponent } from '../../components/user-avatar/user.avatar.component';
+import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
 
 interface CalendarDay {
   date: Date;
@@ -18,7 +19,7 @@ interface CalendarDay {
 @Component({
   selector: 'app-calendar-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, UserAvatarComponent],
+  imports: [CommonModule, FormsModule, UserAvatarComponent, ThemeToggleComponent],
   templateUrl: './calendar-detail.component.html'
 })
 export class CalendarDetailComponent implements OnInit {

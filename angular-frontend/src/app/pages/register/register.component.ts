@@ -5,11 +5,12 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { UserAvatarComponent } from '../../components/user-avatar/user.avatar.component';
+import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, UserAvatarComponent],
+  imports: [CommonModule, FormsModule, UserAvatarComponent, ThemeToggleComponent],
   templateUrl: './register.component.html',
   styles: []
 })
