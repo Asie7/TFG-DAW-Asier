@@ -29,4 +29,24 @@ export class CalendarService {
   getCalendar(calendarId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/calendars/${calendarId}`);
   }
+  
+  // Generar código de invitación
+generateInviteCode(calendarId: number): Observable<any> {
+  return this.http.post(`${this.apiUrl}/calendars/${calendarId}/invite`, {});
+}
+
+// Unirse a un calendario
+joinCalendar(inviteCode: string, userId: number): Observable<any> {
+  return this.http.post(`${this.apiUrl}/calendars/join/${inviteCode}`, { userId });
+}
+
+// Obtener miembros de un calendario
+getMembers(calendarId: number): Observable<any> {
+  return this.http.get(`${this.apiUrl}/calendars/${calendarId}/members`);
+}
+
+// Expulsar miembro
+removeMember(memberId: number): Observable<any> {
+  return this.http.delete(`${this.apiUrl}/calendars/members/${memberId}`);
+}
 }

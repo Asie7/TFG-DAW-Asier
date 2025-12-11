@@ -14,13 +14,16 @@ class CalendarRepository extends ServiceEntityRepository
     }
 
     // Método para obtener calendarios de un usuario
-    public function findByUser($userId)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.propietario = :userId')
-            ->setParameter('userId', $userId)
-            ->orderBy('c.updatedAt', 'DESC')
-            ->getQuery()
-            ->getResult();
-    }
+   public function findByUser($userId)
+{
+    return $this->createQueryBuilder('c')
+        ->leftJoin('App\Entity\CalendarMember', 'cm', 'WITH', 'cm.calendario = c.id')
+        ->where('c.propietario = :userId')
+        ->orWhere('cm.usuario = :userId')
+        ->setParameter('userId', $userId)
+        ->orderBy('c.updatedAt', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
+
 }

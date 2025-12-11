@@ -24,6 +24,7 @@ export class CalendarsComponent implements OnInit {
   // Estados de carga
   isLoading = false;
   showCreateModal = false;
+  showInviteModal = false; // ← NUEVO
 
   // Datos del nuevo calendario
   nuevoCalendario = {
@@ -32,6 +33,10 @@ export class CalendarsComponent implements OnInit {
     tipo: 'personal',
     color: 'blue'
   };
+
+  // Datos de invitación
+  inviteUrl: string = ''; // ← NUEVO
+  currentCalendarId: number = 0; // ← NUEVO
 
   // Colores disponibles
   coloresDisponibles = [
@@ -174,6 +179,37 @@ export class CalendarsComponent implements OnInit {
   // Abrir un calendario específico
   abrirCalendario(calendarioId: number): void {
     this.router.navigate(['/calendars', calendarioId]);
+  }
+
+  // ← NUEVOS MÉTODOS PARA INVITACIONES
+  mostrarModalInvitacion(calendarId: number, event: Event): void {
+    event.stopPropagation();
+    this.currentCalendarId = calendarId;
+    
+    this.calendarService.generateInviteCode(calendarId).subscribe({
+      next: (response) => {
+        this.inviteUrl = response.inviteUrl;
+        this.showInviteModal = true;
+      },
+      error: (err) => {
+        console.error('Error al generar código:', err);
+        this.toastService.error('Error al generar enlace de invitación');
+      }
+    });
+  }
+
+  cerrarModalInvitacion(): void {
+    this.showInviteModal = false;
+    this.inviteUrl = '';
+  }
+
+  copiarEnlace(): void {
+    navigator.clipboard.writeText(this.inviteUrl).then(() => {
+      this.toastService.success('¡Enlace copiado al portapapeles!');
+    }).catch(err => {
+      console.error('Error al copiar:', err);
+      this.toastService.error('Error al copiar el enlace');
+    });
   }
 
   // Cerrar sesión

@@ -5,8 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { CalendarService } from '../../services/calendar.service';
 import { EventService, Event } from '../../services/event.service';
 import { ToastService } from '../../services/toast.service';
-import { UserAvatarComponent } from '../../components/user-avatar/user.avatar.component';
-import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
 
 interface CalendarDay {
   date: Date;
@@ -16,18 +14,37 @@ interface CalendarDay {
   events: Event[];
 }
 
+interface Member {
+  id: number;
+  usuario: {
+    id: number;
+    nombre: string;
+    email: string;
+    avatar: string;
+  };
+  rol: string;
+  joinedAt: string;
+}
+
 @Component({
   selector: 'app-calendar-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, UserAvatarComponent, ThemeToggleComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './calendar-detail.component.html'
 })
 export class CalendarDetailComponent implements OnInit {
   calendarId: number = 0;
   calendar: any = null;
   events: Event[] = [];
+  members: Member[] = [];
+  currentUserId: number = 0;
   showEventModal: boolean = false;
-  
+  showMembersPanel: boolean = false;
+
+  // NUEVO: Modal de invitación
+  showInviteModal: boolean = false;
+  inviteUrl: string = '';
+
   // Control de calendario
   currentDate: Date = new Date();
   calendarDays: CalendarDay[] = [];
@@ -64,15 +81,21 @@ export class CalendarDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.calendarId = Number(this.route.snapshot.paramMap.get('id'));
+    
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      this.currentUserId = user.id;
+    }
+    
     this.loadCalendar();
     this.loadEvents();
+    this.loadMembers();
   }
 
   loadCalendar(): void {
     this.calendarService.getCalendar(this.calendarId).subscribe({
-      next: (data) => {
-        this.calendar = data;
-      },
+      next: (data) => { this.calendar = data; },
       error: (err) => {
         console.error('Error al cargar calendario:', err);
         this.toastService.error('Error al cargar el calendario');
@@ -86,73 +109,112 @@ export class CalendarDetailComponent implements OnInit {
         this.events = data;
         this.generateCalendar();
       },
+      error: (err) => { console.error('Error al cargar eventos:', err); }
+    });
+  }
+
+  loadMembers(): void {
+    this.calendarService.getMembers(this.calendarId).subscribe({
+      next: (data) => {
+        this.members = data;
+        if (this.calendar && this.calendar.tipo === 'grupal' && this.members.length > 0) {
+          this.showMembersPanel = true;
+        }
+      },
+      error: (err) => { console.error('Error al cargar miembros:', err); }
+    });
+  }
+
+  isOwner(): boolean {
+    const ownerMember = this.members.find(m => m.rol === 'owner');
+    return ownerMember ? ownerMember.usuario.id === this.currentUserId : false;
+  }
+
+  removeMember(memberId: number, memberName: string): void {
+    if (!confirm(`¿Estás seguro de expulsar a ${memberName} del calendario?`)) return;
+
+    this.calendarService.removeMember(memberId).subscribe({
+      next: () => {
+        this.toastService.success(`${memberName} ha sido expulsado del calendario`);
+        this.loadMembers();
+      },
       error: (err) => {
-        console.error('Error al cargar eventos:', err);
+        console.error('Error al expulsar miembro:', err);
+        this.toastService.error('Error al expulsar miembro');
       }
+    });
+  }
+
+  toggleMembersPanel(): void {
+    this.showMembersPanel = !this.showMembersPanel;
+  }
+
+  getInitials(name: string): string {
+    if (!name) return 'U';
+    const names = name.split(' ');
+    if (names.length >= 2) return (names[0][0] + names[1][0]).toUpperCase();
+    return name.substring(0, 2).toUpperCase();
+  }
+
+  // NUEVO: Métodos del modal de invitación
+  mostrarModalInvitacion(): void {
+    this.calendarService.generateInviteCode(this.calendarId).subscribe({
+      next: (response) => {
+        this.inviteUrl = response.inviteUrl;
+        this.showInviteModal = true;
+      },
+      error: (err) => {
+        console.error('Error al generar código:', err);
+        this.toastService.error('Error al generar enlace de invitación');
+      }
+    });
+  }
+
+  cerrarModalInvitacion(): void {
+    this.showInviteModal = false;
+    this.inviteUrl = '';
+  }
+
+  copiarEnlace(): void {
+    navigator.clipboard.writeText(this.inviteUrl).then(() => {
+      this.toastService.success('¡Enlace copiado al portapapeles!');
+    }).catch(err => {
+      console.error('Error al copiar:', err);
+      this.toastService.error('Error al copiar el enlace');
     });
   }
 
   generateCalendar(): void {
     const year = this.currentDate.getFullYear();
     const month = this.currentDate.getMonth();
-    
-    // Primer día del mes
     const firstDay = new Date(year, month, 1);
-    // Último día del mes
     const lastDay = new Date(year, month + 1, 0);
-    
-    // Día de la semana del primer día (0 = domingo)
     const startingDayOfWeek = firstDay.getDay();
-    
     const days: CalendarDay[] = [];
     
-    // Días del mes anterior
     const prevMonthLastDay = new Date(year, month, 0).getDate();
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
       const date = new Date(year, month - 1, prevMonthLastDay - i);
-      days.push({
-        date,
-        day: prevMonthLastDay - i,
-        isCurrentMonth: false,
-        isToday: false,
-        events: []
-      });
+      days.push({ date, day: prevMonthLastDay - i, isCurrentMonth: false, isToday: false, events: [] });
     }
     
-    // Días del mes actual
     const today = new Date();
     for (let day = 1; day <= lastDay.getDate(); day++) {
       const date = new Date(year, month, day);
       const isToday = date.toDateString() === today.toDateString();
-      
-      // Filtrar eventos de este día
       const dayEvents = this.events.filter(event => {
         const eventDate = new Date(event.fechaInicio);
         return eventDate.getDate() === day && 
                eventDate.getMonth() === month && 
                eventDate.getFullYear() === year;
       });
-      
-      days.push({
-        date,
-        day,
-        isCurrentMonth: true,
-        isToday,
-        events: dayEvents
-      });
+      days.push({ date, day, isCurrentMonth: true, isToday, events: dayEvents });
     }
     
-    // Días del mes siguiente
-    const remainingDays = 42 - days.length; // 6 semanas * 7 días
+    const remainingDays = 42 - days.length;
     for (let day = 1; day <= remainingDays; day++) {
       const date = new Date(year, month + 1, day);
-      days.push({
-        date,
-        day,
-        isCurrentMonth: false,
-        isToday: false,
-        events: []
-      });
+      days.push({ date, day, isCurrentMonth: false, isToday: false, events: [] });
     }
     
     this.calendarDays = days;
@@ -176,7 +238,6 @@ export class CalendarDetailComponent implements OnInit {
   openEventModal(day?: CalendarDay): void {
     if (day && day.isCurrentMonth) {
       this.selectedDate = day.date;
-      // Pre-rellenar con la fecha seleccionada
       const dateStr = this.formatDateForInput(day.date);
       this.newEvent.fechaInicio = dateStr;
       this.newEvent.fechaFin = dateStr;
@@ -205,13 +266,10 @@ export class CalendarDetailComponent implements OnInit {
     const user = JSON.parse(userStr);
     const userId = user.id;
 
-    const eventData = {
-      ...this.newEvent,
-      userId: Number(userId)
-    };
+    const eventData = { ...this.newEvent, userId: Number(userId) };
 
     this.eventService.createEvent(this.calendarId, eventData).subscribe({
-      next: (response) => {
+      next: () => {
         this.toastService.success('Evento creado exitosamente');
         this.closeEventModal();
         this.loadEvents();
@@ -225,7 +283,6 @@ export class CalendarDetailComponent implements OnInit {
 
   deleteEvent(eventId: number, event: MouseEvent): void {
     event.stopPropagation();
-    
     if (!confirm('¿Estás seguro de eliminar este evento?')) return;
 
     this.eventService.deleteEvent(eventId).subscribe({
@@ -241,13 +298,7 @@ export class CalendarDetailComponent implements OnInit {
   }
 
   resetForm(): void {
-    this.newEvent = {
-      titulo: '',
-      descripcion: '',
-      fechaInicio: '',
-      fechaFin: '',
-      color: 'blue'
-    };
+    this.newEvent = { titulo: '', descripcion: '', fechaInicio: '', fechaFin: '', color: 'blue' };
   }
 
   goBack(): void {
