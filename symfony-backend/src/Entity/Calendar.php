@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\CalendarRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: CalendarRepository::class)]
 #[ORM\Table(name: 'calendars')]
@@ -26,6 +28,13 @@ class Calendar
     #[ORM\Column(length: 20)]
     private ?string $color = 'blue'; // Color para la UI
 
+
+#[ORM\OneToMany(mappedBy: 'calendario', targetEntity: CalendarMember::class, cascade: ['remove'], orphanRemoval: true)]
+private Collection $members;
+
+    #[ORM\Column(length: 20, unique: true, nullable: true)]
+private ?string $inviteCode = null;
+
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $propietario = null;
@@ -40,6 +49,7 @@ class Calendar
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTimeImmutable();
+        $this->members = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -123,4 +133,26 @@ class Calendar
         $this->updatedAt = $updatedAt;
         return $this;
     }
+    
+    public function getInviteCode(): ?string
+{
+    return $this->inviteCode;
+}
+
+public function setInviteCode(?string $inviteCode): static
+{
+    $this->inviteCode = $inviteCode;
+    return $this;
+}
+
+public function getMembers(): Collection
+{
+    return $this->members;
+}
+
+// Método para generar código único
+public function generateInviteCode(): void
+{
+    $this->inviteCode = substr(md5(uniqid()), 0, 10);
+}
 }

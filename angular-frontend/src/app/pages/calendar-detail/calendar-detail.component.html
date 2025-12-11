@@ -1,5 +1,5 @@
 <!-- Navbar -->
-<nav class="bg-gradient-to-r from-red-600 to-red-800 dark:from-red-900 dark:to-red-950 shadow-lg transition-colors duration-300">
+<nav class="bg-gradient-to-r from-red-600 to-red-800 shadow-lg">
   <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
     <div class="logo flex items-center gap-3">
       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -11,122 +11,250 @@
       </svg>
       <h1 class="text-white text-3xl font-bold">WePlan</h1>
     </div>
-    <div class="flex items-center gap-4">
-    <a href="/calendars" class="flex items-center gap-2 px-6 py-2 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 rounded-lg font-medium hover:shadow-xl hover:-translate-y-1 transition duration-300">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20">
-    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l9.5-9 9.5 9M4.5 9.75V21h6.75v-6h2.25v6H19.5V9.75" />
-  </svg>
-      Volver a mis calendarios
-    </a>
-
-    <app-user-avatar></app-user-avatar>
-    <app-theme-toggle></app-theme-toggle>
-
-  </div>
+    <button (click)="goBack()" class="px-6 py-2 bg-white text-red-600 rounded-lg font-medium hover:shadow-xl transition duration-300">
+      ← Volver a Calendarios
+    </button>
   </div>
 </nav>
 
 <!-- Contenido Principal -->
-<div class="min-h-screen bg-gray-100 dark:bg-gray-800 py-8">
-  <div class="max-w-7xl mx-auto px-4">
+<div class="min-h-screen bg-gray-100 py-8">
+  <div class="max-w-[1600px] mx-auto px-4">
     
-    <!-- Header del Calendario -->
-    <div *ngIf="calendar" class="bg-white rounded-lg shadow-md p-6 mb-6">
-      <div class="flex justify-between items-center">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ calendar.nombre }}</h1>
-          <p class="text-gray-600">{{ calendar.descripcion }}</p>
-          <span class="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium">
-            {{ calendar.tipo }}
-          </span>
-        </div>
-        <button 
-          (click)="openEventModal()"
-          class="px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 hover:shadow-xl transition duration-300 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Añadir Evento
-        </button>
-      </div>
-    </div>
-
-    <!-- Vista de Calendario -->
-    <div class="bg-white rounded-lg shadow-md p-6">
+    <!-- LAYOUT: Panel Miembros (izquierda) + Calendario (centro) + Próximos eventos (derecha) -->
+    <div class="flex gap-6 items-start">
       
-      <!-- Controles de navegación -->
-      <div class="flex justify-between items-center mb-6">
-        <button 
-          (click)="previousMonth()"
-          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">
-          ← Anterior
-        </button>
+      <!-- PANEL IZQUIERDO: Miembros (SOLO SI ES GRUPAL) -->
+      <div 
+        *ngIf="calendar && calendar.tipo === 'grupal'"
+        class="w-80 flex-shrink-0">
         
-        <div class="flex items-center gap-4">
-          <h2 class="text-2xl font-bold text-gray-800">{{ currentMonthYear }}</h2>
-          <button 
-            (click)="goToToday()"
-            class="px-4 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition duration-200 text-sm">
-            Hoy
-          </button>
-        </div>
-        
-        <button 
-          (click)="nextMonth()"
-          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">
-          Siguiente →
-        </button>
-      </div>
-
-      <!-- Nombres de los días -->
-      <div class="grid grid-cols-7 gap-2 mb-2">
-        <div *ngFor="let dayName of dayNames" 
-             class="text-center font-bold text-gray-600 py-2">
-          {{ dayName }}
-        </div>
-      </div>
-
-      <!-- Grid de días del calendario -->
-      <div class="grid grid-cols-7 gap-2">
-        <div 
-          *ngFor="let day of calendarDays"
-          (click)="openEventModal(day)"
-          [class]="'min-h-32 p-2 border rounded-lg cursor-pointer transition duration-200 ' +
-                   (day.isCurrentMonth ? 'bg-white hover:bg-gray-50 border-gray-200' : 'bg-gray-50 border-gray-100') +
-                   (day.isToday ? ' ring-2 ring-red-500' : '')">
-          
-          <!-- Número del día -->
-          <div [class]="'text-sm font-bold mb-1 ' + 
-                       (day.isCurrentMonth ? 'text-gray-800' : 'text-gray-400') +
-                       (day.isToday ? ' text-red-600' : '')">
-            {{ day.day }}
+        <div class="bg-white rounded-lg shadow-md p-6 sticky top-8">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-bold text-gray-800">Miembros</h3>
+            <span class="text-sm text-gray-500">{{ members.length }}/6</span>
           </div>
 
-          <!-- Eventos del día -->
-          <div class="space-y-1">
+          <!-- Lista de miembros -->
+          <div class="space-y-3 max-h-[500px] overflow-y-auto mb-4">
             <div 
-              *ngFor="let event of day.events"
-              (click)="deleteEvent(event.id!, $event)"
-              [class]="getColorClass(event.color) + ' text-white text-xs p-1 rounded truncate hover:opacity-80 transition duration-200'"
-              [title]="event.titulo + ' - Click para eliminar'">
-              {{ event.titulo }}
+              *ngFor="let member of members"
+              class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition duration-200">
+              
+              <!-- Avatar -->
+              <div class="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center flex-shrink-0">
+                <img 
+                  *ngIf="member.usuario.avatar" 
+                  [src]="member.usuario.avatar" 
+                  [alt]="member.usuario.nombre"
+                  class="w-full h-full object-cover">
+                <svg 
+                  *ngIf="!member.usuario.avatar"
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="24" 
+                  height="24" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  stroke-width="2" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round" 
+                  class="text-gray-500">
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <p class="font-semibold text-gray-800 truncate">
+                  {{ member.usuario.nombre }}
+                </p>
+                <span 
+                  *ngIf="member.rol === 'owner'"
+                  class="text-xs px-2 py-0.5 bg-red-100 text-red-600 rounded-full">
+                  Propietario
+                </span>
+                <span 
+                  *ngIf="member.rol !== 'owner'"
+                  class="text-xs text-gray-500">
+                  Miembro
+                </span>
+              </div>
+
+              <!-- Botón expulsar -->
+              <button 
+                *ngIf="isOwner() && member.usuario.id !== currentUserId && member.rol !== 'owner'"
+                (click)="removeMember(member.id, member.usuario.nombre)"
+                class="text-red-500 hover:text-red-700 p-1 rounded transition duration-200"
+                title="Expulsar miembro">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="8.5" cy="7" r="4"/>
+                  <line x1="23" x2="17" y1="11" y2="11"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Mensaje si no hay miembros -->
+            <div *ngIf="members.length === 0" class="text-center py-8">
+              <svg class="w-16 h-16 mx-auto text-gray-300 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <p class="text-gray-500 text-sm">Sin miembros</p>
             </div>
           </div>
-          
-          <!-- Indicador si hay más eventos -->
-          <div *ngIf="day.events.length > 3" class="text-xs text-gray-500 mt-1">
-            +{{ day.events.length - 3 }} más
-          </div>
+
+          <!-- Botón INVITAR (solo si es owner) -->
+          <button 
+            *ngIf="isOwner()"
+            (click)="mostrarModalInvitacion()"
+            class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            Invitar Miembros
+          </button>
         </div>
       </div>
 
+      <!-- CENTRO: Calendario -->
+      <div class="flex-1">
+        
+        <!-- Header del Calendario -->
+        <div *ngIf="calendar" class="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div class="flex justify-between items-center">
+            <div>
+              <h1 class="text-3xl font-bold text-gray-800 mb-2">{{ calendar.nombre }}</h1>
+              <p class="text-gray-600">{{ calendar.descripcion }}</p>
+              <span class="inline-block mt-2 px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm font-medium">
+                {{ calendar.tipo }}
+              </span>
+            </div>
+            <button 
+              (click)="openEventModal()"
+              class="px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 hover:shadow-xl transition duration-300 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Añadir Evento
+            </button>
+          </div>
+        </div>
+
+        <!-- Vista de Calendario -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          
+          <!-- Controles de navegación -->
+          <div class="flex justify-between items-center mb-6">
+            <button 
+              (click)="previousMonth()"
+              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">
+              ← Anterior
+            </button>
+            
+            <div class="flex items-center gap-4">
+              <h2 class="text-2xl font-bold text-gray-800">{{ currentMonthYear }}</h2>
+              <button 
+                (click)="goToToday()"
+                class="px-4 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition duration-200 text-sm">
+                Hoy
+              </button>
+            </div>
+            
+            <button 
+              (click)="nextMonth()"
+              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">
+              Siguiente →
+            </button>
+          </div>
+
+          <!-- Nombres de los días -->
+          <div class="grid grid-cols-7 gap-2 mb-2">
+            <div *ngFor="let dayName of dayNames" 
+                 class="text-center font-bold text-gray-600 py-2">
+              {{ dayName }}
+            </div>
+          </div>
+
+          <!-- Grid de días del calendario -->
+          <div class="grid grid-cols-7 gap-2">
+            <div 
+              *ngFor="let day of calendarDays"
+              (click)="openEventModal(day)"
+              [class]="'min-h-32 p-2 border rounded-lg cursor-pointer transition duration-200 ' +
+                       (day.isCurrentMonth ? 'bg-white hover:bg-gray-50 border-gray-200' : 'bg-gray-50 border-gray-100') +
+                       (day.isToday ? ' ring-2 ring-red-500' : '')">
+              
+              <!-- Número del día -->
+              <div [class]="'text-sm font-bold mb-1 ' + 
+                           (day.isCurrentMonth ? 'text-gray-800' : 'text-gray-400') +
+                           (day.isToday ? ' text-red-600' : '')">
+                {{ day.day }}
+              </div>
+
+              <!-- Eventos del día -->
+              <div class="space-y-1">
+                <div 
+                  *ngFor="let event of day.events"
+                  (click)="deleteEvent(event.id!, $event)"
+                  [class]="getColorClass(event.color) + ' text-white text-xs p-1 rounded truncate hover:opacity-80 transition duration-200'"
+                  [title]="event.titulo + ' - Click para eliminar'">
+                  {{ event.titulo }}
+                </div>
+              </div>
+              
+              <!-- Indicador si hay más eventos -->
+              <div *ngIf="day.events.length > 3" class="text-xs text-gray-500 mt-1">
+                +{{ day.events.length - 3 }} más
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    
+
+      
+
+<!-- Modal de invitación (igual que antes) -->
+<div *ngIf="showInviteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full mx-4">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Invitar al Calendario</h2>
+    
+    <p class="text-gray-600 mb-4">Comparte este enlace para que otros puedan unirse:</p>
+    
+    <div class="flex gap-2 mb-4">
+      <input 
+        type="text" 
+        [value]="inviteUrl"
+        readonly
+        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm">
+      <button 
+        (click)="copiarEnlace()"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
+        Copiar
+      </button>
     </div>
 
+    <p class="text-sm text-gray-500 mb-6">
+      <svg class="w-4 h-4 inline mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      Límite: 6 miembros por calendario
+    </p>
+
+    <button 
+      (click)="cerrarModalInvitacion()"
+      class="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">
+      Cerrar
+    </button>
   </div>
 </div>
 
-<!-- Modal para crear evento -->
+<!-- Modal para crear evento (igual que antes) -->
 <div *ngIf="showEventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full mx-4">
     <h2 class="text-2xl font-bold text-gray-800 mb-6">
@@ -134,7 +262,6 @@
     </h2>
     
     <form (ngSubmit)="createEvent()">
-      <!-- Título -->
       <div class="mb-4">
         <label class="block text-gray-700 font-medium mb-2">Título *</label>
         <input 
@@ -146,7 +273,6 @@
           required>
       </div>
 
-      <!-- Descripción -->
       <div class="mb-4">
         <label class="block text-gray-700 font-medium mb-2">Descripción</label>
         <textarea 
@@ -157,7 +283,6 @@
           placeholder="Descripción del evento"></textarea>
       </div>
 
-      <!-- Fecha Inicio -->
       <div class="mb-4">
         <label class="block text-gray-700 font-medium mb-2">Fecha Inicio *</label>
         <input 
@@ -168,7 +293,6 @@
           required>
       </div>
 
-      <!-- Fecha Fin -->
       <div class="mb-4">
         <label class="block text-gray-700 font-medium mb-2">Fecha Fin *</label>
         <input 
@@ -179,7 +303,6 @@
           required>
       </div>
 
-      <!-- Color -->
       <div class="mb-6">
         <label class="block text-gray-700 font-medium mb-2">Color</label>
         <div class="flex gap-3">
@@ -193,7 +316,6 @@
         </div>
       </div>
 
-      <!-- Botones -->
       <div class="flex gap-3">
         <button 
           type="button"
