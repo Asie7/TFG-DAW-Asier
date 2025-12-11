@@ -5,11 +5,12 @@ import { CalendarService } from '../../services/calendar.service';
 import { FormsModule } from '@angular/forms';
 import { ToastService } from '../../services/toast.service';
 import { UserAvatarComponent } from '../../components/user-avatar/user.avatar.component';
+import { ThemeToggleComponent } from '../../components/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-calendars',
   standalone: true,
-  imports: [CommonModule, FormsModule, UserAvatarComponent],
+  imports: [CommonModule, FormsModule, UserAvatarComponent, ThemeToggleComponent],
   templateUrl: './calendars.component.html',
   styles: []
 })

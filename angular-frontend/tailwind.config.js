@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class', 
   content: [
     "./src/**/*.{html,ts}", // detecta los ficheros donde Tailwind debe buscar clases
   ],
