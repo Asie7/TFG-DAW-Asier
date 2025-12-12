@@ -45,12 +45,17 @@ export class CalendarDetailComponent implements OnInit {
   showInviteModal: boolean = false;
   inviteUrl: string = '';
 
+  // NUEVO: Filtro de eventos próximos
+  filterUpcoming: 'week' | 'month' = 'week';
+  upcomingEvents: Event[] = [];
+
   // Control de calendario
   currentDate: Date = new Date();
   calendarDays: CalendarDay[] = [];
   monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
                 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-  dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+  // Cambiado para que la cuadrícula empiece en LUNES
+  dayNames = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
   
   // Formulario de evento
   selectedDate: Date | null = null;
@@ -108,9 +113,61 @@ export class CalendarDetailComponent implements OnInit {
       next: (data) => {
         this.events = data;
         this.generateCalendar();
+        this.getUpcomingEvents();
       },
       error: (err) => { console.error('Error al cargar eventos:', err); }
     });
+  }
+
+  /**
+   * Obtiene eventos próximos según filtro:
+   * - 'week' => rango desde el LUNES de esta semana hasta el DOMINGO de esta semana (no "próximos 7 días")
+   * - 'month' => desde el día 1 hasta el último día del mes actual
+   */
+  getUpcomingEvents(): void {
+    // Normalizamos "ahora" a inicio del día actual para comparaciones
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    let startDate: Date;
+    let endDate: Date;
+
+    if (this.filterUpcoming === 'week') {
+      // Calculamos lunes y domingo de la semana actual (semana que contiene 'now')
+      const day = now.getDay(); // 0 (Dom) .. 6 (Sáb)
+      const diffToMonday = (day + 6) % 7; // convierte domingo(0)->6, lunes(1)->0...
+      startDate = new Date(now);
+      startDate.setDate(now.getDate() - diffToMonday);
+      startDate.setHours(0, 0, 0, 0);
+
+      endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      endDate.setHours(23, 59, 59, 999);
+    } else {
+      // Mes actual: desde 1 hasta último día del mes
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      endDate.setHours(23, 59, 59, 999);
+    }
+
+    // Filtrar eventos en el rango (fechaInicio)
+    this.upcomingEvents = this.events
+      .filter(event => {
+        const eventDate = new Date(event.fechaInicio);
+        return eventDate >= startDate && eventDate <= endDate;
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.fechaInicio).getTime();
+        const dateB = new Date(b.fechaInicio).getTime();
+        return dateA - dateB;
+      })
+      .slice(0, 5); // Solo los 5 primeros
+  }
+
+  changeFilter(filter: 'week' | 'month'): void {
+    this.filterUpcoming = filter;
+    this.getUpcomingEvents();
   }
 
   loadMembers(): void {
@@ -184,49 +241,88 @@ export class CalendarDetailComponent implements OnInit {
     });
   }
 
+  /**
+   * Genera los días del calendario para el mes actual en this.currentDate
+   * - Empieza la grid en LUNES
+   * - Rellena días previos y siguientes para completar 6 filas (42 celdas)
+   * - Asigna events a cada día comparando year/month/date
+   */
   generateCalendar(): void {
     const year = this.currentDate.getFullYear();
     const month = this.currentDate.getMonth();
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    const startingDayOfWeek = firstDay.getDay();
+
+    // Convertimos getDay() a índice donde Lunes = 0 ... Domingo = 6
+    // getDay(): 0 = Dom, 1 = Lun, ... 6 = Sáb
+    const firstDayIndex = (firstDay.getDay() + 6) % 7;
+
     const days: CalendarDay[] = [];
-    
+
+    // Días del mes anterior (para rellenar antes del 1)
     const prevMonthLastDay = new Date(year, month, 0).getDate();
-    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-      const date = new Date(year, month - 1, prevMonthLastDay - i);
-      days.push({ date, day: prevMonthLastDay - i, isCurrentMonth: false, isToday: false, events: [] });
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      const dayNum = prevMonthLastDay - i;
+      const date = new Date(year, month - 1, dayNum);
+      days.push({
+        date,
+        day: dayNum,
+        isCurrentMonth: false,
+        isToday: false,
+        events: []
+      });
     }
-    
+
+    // Días del mes actual
     const today = new Date();
-    for (let day = 1; day <= lastDay.getDate(); day++) {
-      const date = new Date(year, month, day);
-      const isToday = date.toDateString() === today.toDateString();
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const date = new Date(year, month, d);
+
       const dayEvents = this.events.filter(event => {
         const eventDate = new Date(event.fechaInicio);
-        return eventDate.getDate() === day && 
-               eventDate.getMonth() === month && 
-               eventDate.getFullYear() === year;
+        return (
+          eventDate.getFullYear() === year &&
+          eventDate.getMonth() === month &&
+          eventDate.getDate() === d
+        );
       });
-      days.push({ date, day, isCurrentMonth: true, isToday, events: dayEvents });
+
+      days.push({
+        date,
+        day: d,
+        isCurrentMonth: true,
+        isToday: date.toDateString() === today.toDateString(),
+        events: dayEvents
+      });
     }
-    
+
+    // Completar hasta 42 celdas (6 filas x 7 columnas)
     const remainingDays = 42 - days.length;
-    for (let day = 1; day <= remainingDays; day++) {
-      const date = new Date(year, month + 1, day);
-      days.push({ date, day, isCurrentMonth: false, isToday: false, events: [] });
+    for (let i = 1; i <= remainingDays; i++) {
+      const date = new Date(year, month + 1, i);
+      days.push({
+        date,
+        day: i,
+        isCurrentMonth: false,
+        isToday: false,
+        events: []
+      });
     }
-    
+
     this.calendarDays = days;
+
+    // Actualizar lista de próximos eventos al regenerar calendario
+    // (útil si cambias de mes / navegas)
+    this.getUpcomingEvents();
   }
 
   previousMonth(): void {
-    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1);
+    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
     this.generateCalendar();
   }
 
   nextMonth(): void {
-    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1);
+    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
     this.generateCalendar();
   }
 
@@ -317,6 +413,18 @@ export class CalendarDetailComponent implements OnInit {
     return colors[color] || 'bg-gray-500';
   }
 
+  getColorHex(color: string): string {
+    const colorMap: any = {
+      blue: '#3B82F6',
+      red: '#EF4444',
+      green: '#10B981',
+      yellow: '#F59E0B',
+      purple: '#8B5CF6',
+      pink: '#EC4899'
+    };
+    return colorMap[color] || '#6B7280';
+  }
+
   formatDateForInput(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -324,6 +432,29 @@ export class CalendarDetailComponent implements OnInit {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  formatDateShort(dateString: string): string {
+    const date = new Date(dateString);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    // Si es hoy
+    if (date.toDateString() === today.toDateString()) {
+      return `Hoy, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+    }
+    
+    // Si es mañana
+    if (date.toDateString() === tomorrow.toDateString()) {
+      return `Mañana, ${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+    }
+    // Otro día
+    return date.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 
   get currentMonthYear(): string {

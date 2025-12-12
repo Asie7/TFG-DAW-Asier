@@ -11,9 +11,12 @@
       </svg>
       <h1 class="text-white text-3xl font-bold">WePlan</h1>
     </div>
-    <button (click)="goBack()" class="px-6 py-2 bg-white text-red-600 rounded-lg font-medium hover:shadow-xl transition duration-300">
-      ← Volver a Calendarios
-    </button>
+    <a href="/" class="flex items-center gap-2 px-6 py-2 bg-white dark:bg-gray-800 text-red-600 dark:text-red-400 rounded-lg font-medium hover:shadow-xl hover:-translate-y-1 transition duration-300">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" width="20" height="20">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l9.5-9 9.5 9M4.5 9.75V21h6.75v-6h2.25v6H19.5V9.75" />
+  </svg>
+      Volver al calendarios
+    </a>
   </div>
 </nav>
 
@@ -88,7 +91,7 @@
                 (click)="removeMember(member.id, member.usuario.nombre)"
                 class="text-red-500 hover:text-red-700 p-1 rounded transition duration-200"
                 title="Expulsar miembro">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                   <circle cx="8.5" cy="7" r="4"/>
                   <line x1="23" x2="17" y1="11" y2="11"/>
@@ -110,9 +113,7 @@
             *ngIf="isOwner()"
             (click)="mostrarModalInvitacion()"
             class="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 flex items-center justify-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-plus-icon lucide-user-plus"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
             Invitar Miembros
           </button>
         </div>
@@ -134,7 +135,7 @@
             <button 
               (click)="openEventModal()"
               class="px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 hover:shadow-xl transition duration-300 flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"/>
                 <line x1="5" y1="12" x2="19" y2="12"/>
               </svg>
@@ -150,8 +151,11 @@
           <div class="flex justify-between items-center mb-6">
             <button 
               (click)="previousMonth()"
-              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">
-              ← Anterior
+              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200 flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+              Anterior
             </button>
             
             <div class="flex items-center gap-4">
@@ -165,8 +169,11 @@
             
             <button 
               (click)="nextMonth()"
-              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200">
-              Siguiente →
+              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition duration-200 flex items-center gap-1">
+              Siguiente
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 6 15 12 9 18"/>
+              </svg>
             </button>
           </div>
 
@@ -215,11 +222,58 @@
         </div>
       </div>
 
-    
+      <!-- PANEL DERECHO: Próximos Eventos -->
+      <div class="w-80 flex-shrink-0">
+        <div class="bg-white rounded-lg shadow-md p-6 sticky top-8">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">Próximos Eventos</h3>
+          
+          <div class="flex gap-2 mb-6">
+            <div
+              (click)="filterUpcoming = 'week'"
+              [class]="'flex-1 px-3 py-2 rounded-lg text-sm font-medium text-center transition duration-200 ' +
+                       (filterUpcoming === 'week' 
+                          ? 'bg-red-600 text-white shadow-md' 
+                          : 'bg-gray-100 text-gray-700')">
+              Esta Semana
+            </div>
+          </div>
 
-      
+          <!-- Lista de próximos eventos -->
+          <div class="space-y-3 max-h-[500px] overflow-y-auto">
+            <div 
+              *ngFor="let event of upcomingEvents"
+              class="p-3 rounded-lg border-l-4 hover:bg-gray-50 transition duration-200"
+              [style.border-color]="getColorHex(event.color)">
+              
+              <h4 class="font-semibold text-gray-800 mb-1">{{ event.titulo }}</h4>
+              <p *ngIf="event.descripcion" class="text-sm text-gray-600 mb-2 line-clamp-2">{{ event.descripcion }}</p>
+              
+              <div class="flex items-center gap-2 text-xs text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span>{{ formatDateShort(event.fechaInicio) }}</span>
+              </div>
+            </div>
 
-<!-- Modal de invitación (igual que antes) -->
+            <!-- Mensaje si no hay eventos -->
+            <div *ngIf="upcomingEvents.length === 0" class="text-center py-12">
+              <svg class="w-16 h-16 mx-auto text-gray-300 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p class="text-gray-500 text-sm">No hay eventos próximos</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal de invitación -->
 <div *ngIf="showInviteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full mx-4">
     <h2 class="text-2xl font-bold text-gray-800 mb-6">Invitar al Calendario</h2>
@@ -254,7 +308,7 @@
   </div>
 </div>
 
-<!-- Modal para crear evento (igual que antes) -->
+<!-- Modal para crear evento -->
 <div *ngIf="showEventModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full mx-4">
     <h2 class="text-2xl font-bold text-gray-800 mb-6">
